@@ -27,6 +27,7 @@ public class App {
         Admin admin = Admin.create(props);
         CreateTopicsResult result = admin.createTopics(Collections.singleton(
                 new NewTopic("teste", 12, (short) 3)));
+        LOG.info("{}", result);
         KafkaProducer<String, String> producer = new KafkaProducer<>(props);
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
         Javalin.create()
