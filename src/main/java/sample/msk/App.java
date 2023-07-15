@@ -5,12 +5,15 @@ import io.javalin.apibuilder.ApiBuilder;
 import org.apache.kafka.clients.admin.Admin;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -30,6 +33,8 @@ public class App {
         LOG.info("{}", result);
         KafkaProducer<String, String> producer = new KafkaProducer<>(props);
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Collections.singleton("teste"));
+
         Javalin.create()
                 .routes(() -> {
                     ApiBuilder.get("/topics", ctx -> {
@@ -49,6 +54,10 @@ public class App {
                                     ctx.json("DONE!");
                                 }
                         );
+                    });
+                    ApiBuilder.get("/get", ctx -> {
+                        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+                        ctx.json(records);
                     });
                 })
                 .start(7070);
