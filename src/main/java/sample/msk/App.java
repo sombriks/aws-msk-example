@@ -27,16 +27,19 @@ public class App {
     public static void main(String[] args) throws Exception {
         Properties props = new Properties();
         props.load(App.class.getResourceAsStream("/client.properties"));
+
         Admin admin = Admin.create(props);
-        CreateTopicsResult result = admin.createTopics(Collections.singleton(
-                new NewTopic("teste", 12, (short) 3)));
-        LOG.info("{}", result);
         KafkaProducer<String, String> producer = new KafkaProducer<>(props);
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singleton("teste"));
 
         Javalin.create()
                 .routes(() -> {
+                    ApiBuilder.get("/create", ctx -> {
+                        CreateTopicsResult result = admin.createTopics(Collections.singleton(
+                                new NewTopic("teste", 12, (short) 3)));
+                        LOG.info("{}", result);
+                        ctx.json(result);
+                    });
                     ApiBuilder.get("/topics", ctx -> {
                         ctx.json(admin.listTopics());
                     });
@@ -56,7 +59,9 @@ public class App {
                         );
                     });
                     ApiBuilder.get("/get", ctx -> {
+                        consumer.subscribe(Collections.singleton("teste"));
                         ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+                        LOG.info("{}", records);
                         ctx.json(records);
                     });
                 })
