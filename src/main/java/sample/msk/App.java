@@ -35,8 +35,7 @@ public class App {
         Javalin.create()
                 .routes(() -> {
                     ApiBuilder.get("/create", ctx -> {
-                        CreateTopicsResult result = admin.createTopics(Collections.singleton(
-                                new NewTopic("teste", 12, (short) 3)));
+                        CreateTopicsResult result = admin.createTopics(Collections.singleton(new NewTopic("teste", 12, (short) 3)));
                         LOG.info("{}", result);
                         ctx.json(result);
                     });
