@@ -44,19 +44,9 @@ public class App {
                         ctx.json(admin.listTopics());
                     });
                     ApiBuilder.get("/send", ctx -> {
-                        producer.send(
-                                new ProducerRecord<>(
-                                        "teste",
-                                        ctx.queryParam("key"),
-                                        ctx.queryParam("value")),
-
-                                (recordMetadata, exception) -> {
-                                    LOG.info("{}", recordMetadata);
-                                    if (exception != null)
-                                        LOG.warn("problema: ", exception);
-                                    ctx.json("DONE!");
-                                }
-                        );
+                        var recordMetadata = producer.send(new ProducerRecord<>("teste", ctx.queryParam("key"), ctx.queryParam("value")));
+                        LOG.info("{}", recordMetadata);
+                        ctx.json(recordMetadata);
                     });
                     ApiBuilder.get("/get", ctx -> {
                         consumer.subscribe(Collections.singleton("teste"));
